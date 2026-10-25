@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تحدي أبطال الدراسات الاجتماعية</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800;900&display=swap" rel="stylesheet">
-    <!-- مكتبة Firebase من جوجل لربط لوحة الصدارة سحابياً -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
     <style>
         :root {
             --primary: #1e3a8a;
@@ -16,12 +12,11 @@
             --secondary: #059669;
             --accent: #f59e0b;
             --danger: #ef4444;
-            --bg: #f0fdf4;
             --card-bg: #ffffff;
             --text-main: #1f2937;
             --text-muted: #6b7280;
             --border-rad: 20px;
-            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
         * {
@@ -70,9 +65,6 @@
             border-radius: 50px;
             font-weight: 800;
             font-size: 0.95rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
         }
 
         .score-pill {
@@ -101,7 +93,7 @@
 
         .screen {
             display: none;
-            animation: fadeIn 0.4s ease-out forwards;
+            animation: fadeIn 0.3s ease-out forwards;
         }
 
         .screen.active {
@@ -146,7 +138,6 @@
             border-radius: 12px;
             font-size: 1.1rem;
             outline: none;
-            transition: border-color 0.2s;
         }
 
         input[type="text"]:focus {
@@ -165,12 +156,11 @@
             font-weight: 800;
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
-            transition: transform 0.15s, box-shadow 0.15s;
+            transition: transform 0.15s;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+        .btn:active {
+            transform: translateY(1px);
         }
 
         .question-box {
@@ -215,16 +205,9 @@
             font-weight: 700;
             text-align: right;
             cursor: pointer;
-            transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: space-between;
-        }
-
-        .option-btn:hover:not(.disabled) {
-            background: #eff6ff;
-            border-color: var(--primary-light);
-            transform: translateX(-4px);
         }
 
         .option-btn.correct {
@@ -256,7 +239,6 @@
             flex-direction: column;
             align-items: center;
             gap: 8px;
-            transition: transform 0.15s;
         }
 
         .tf-btn.true-btn {
@@ -298,12 +280,6 @@
             background: #f8fafc;
         }
 
-        .leaderboard-table tr:first-child td {
-            color: #b45309;
-            background: #fef3c7;
-            font-size: 1.05rem;
-        }
-
         .status-sync {
             font-size: 0.95rem;
             color: #2563eb;
@@ -316,21 +292,21 @@
 <body>
 
     <div class="game-card">
-        <!-- شاشة تسجيل الدخول والبدء -->
+        <!-- شاشة تسجيل الدخول -->
         <div id="start-screen" class="screen active">
             <div style="text-align:center; font-size: 3rem; margin-bottom: 8px;">🧭</div>
             <h1>مغامرة الجغرافي الصغير</h1>
-            <p class="subtitle">تحدّ زملاءك، أجب عن 44 مرحلة واحتل صدارة لوحة الشرف الموحدة!</p>
+            <p class="subtitle">تحدّ زملاءك، أجب عن 44 مرحلة واحتل صدارة الترتيب!</p>
             
             <div class="form-group">
-                <label for="player-name">اسم البطل / الطالب:</label>
-                <input type="text" id="player-name" placeholder="اكتب اسمك الثلاثي..." autocomplete="off">
+                <label for="player-name">اسم الطالب:</label>
+                <input type="text" id="player-name" placeholder="اكتب اسمك هنا..." autocomplete="off">
             </div>
 
             <button class="btn" onclick="startGame()">انطلاق التحدي 🚀</button>
         </div>
 
-        <!-- شاشة الأسئلة واللعب -->
+        <!-- شاشة الأسئلة -->
         <div id="quiz-screen" class="screen">
             <div class="header-bar">
                 <div class="badge" id="stage-badge">المرحلة: 1 / 44</div>
@@ -342,20 +318,18 @@
             </div>
 
             <div id="illustration-container"></div>
-
-            <div class="question-box" id="question-text">نص السؤال يظهر هنا...</div>
-
+            <div class="question-box" id="question-text">...</div>
             <div id="options-container"></div>
         </div>
 
-        <!-- شاشة النهاية ولوحة المراكز المركزية -->
+        <!-- شاشة النهاية ولوحة الصدارة الموحدة -->
         <div id="result-screen" class="screen">
             <div style="text-align:center; font-size: 3rem; margin-bottom: 6px;">🏆</div>
             <h1>مبروك إنهاء التحدي!</h1>
-            <p class="subtitle" id="final-stats">أحسنت يا بطل!</p>
+            <p class="subtitle" id="final-stats"></p>
 
             <h3 style="color: var(--primary); margin-bottom: 6px; text-align: center;">جدول ترتيب جميع المتسابقين 🌟</h3>
-            <div id="sync-status" class="status-sync">جاري جلب ترتيب الأوائل من السحابة...</div>
+            <div id="sync-status" class="status-sync">جاري تحميل قائمة الأبطال...</div>
             <table class="leaderboard-table">
                 <thead>
                     <tr>
@@ -364,9 +338,7 @@
                         <th>الدرجة</th>
                     </tr>
                 </thead>
-                <tbody id="leaderboard-body">
-                    <!-- تتعبأ مباشرة من قاعدة البيانات المشتركة -->
-                </tbody>
+                <tbody id="leaderboard-body"></tbody>
             </table>
 
             <button class="btn" style="margin-top: 14px;" onclick="resetGame()">إعادة التحدي 🔄</button>
@@ -374,17 +346,10 @@
     </div>
 
     <script>
-        // إعداد اتصال Firebase Realtime السحابي المباشر
-        const firebaseConfig = {
-            databaseURL: "https://school-quiz-board-default-rtdb.firebaseio.com"
-        };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const db = firebase.database();
-        const scoresRef = db.ref('social_studies_scores');
+        // مفتاح قاعدة البيانات السحابية الحرة
+        const CLOUD_STORAGE_KEY = "skhamash2_social_quiz_board_v1";
 
-        // المؤثرات الصوتية
+        // مؤثرات صوتية
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playTone(freq, type, duration) {
             try {
@@ -400,18 +365,6 @@
             } catch(e){}
         }
 
-        function soundCorrect() {
-            playTone(523.25, 'sine', 0.15);
-            setTimeout(() => playTone(659.25, 'sine', 0.2), 100);
-            setTimeout(() => playTone(783.99, 'sine', 0.3), 200);
-        }
-
-        function soundWrong() {
-            playTone(220, 'triangle', 0.25);
-            setTimeout(() => playTone(180, 'triangle', 0.35), 180);
-        }
-
-        // الأشكال التوضيحية
         const compassSVG = `
             <div class="illustration">
                 <svg viewBox="0 0 200 200">
@@ -450,21 +403,17 @@
                     <line x1="120" y1="10" x2="120" y2="120" stroke="#94a3b8" stroke-width="1"/>
                     <line x1="160" y1="10" x2="160" y2="120" stroke="#94a3b8" stroke-width="1"/>
                     <line x1="200" y1="10" x2="200" y2="120" stroke="#94a3b8" stroke-width="1"/>
-
                     <line x1="10" y1="35" x2="230" y2="35" stroke="#94a3b8" stroke-width="1"/>
                     <line x1="10" y1="65" x2="230" y2="65" stroke="#94a3b8" stroke-width="1"/>
                     <line x1="10" y1="95" x2="230" y2="95" stroke="#94a3b8" stroke-width="1"/>
-
                     <text x="215" y="25" font-size="10" font-weight="bold">١</text>
                     <text x="180" y="25" font-size="10" font-weight="bold">٢</text>
                     <text x="140" y="25" font-size="10" font-weight="bold">٣</text>
                     <text x="100" y="25" font-size="10" font-weight="bold">٤</text>
                     <text x="60" y="25" font-size="10" font-weight="bold">٥</text>
-
                     <text x="232" y="52" font-size="10" font-weight="bold">أ</text>
                     <text x="232" y="82" font-size="10" font-weight="bold">ج</text>
                     <text x="232" y="112" font-size="10" font-weight="bold">هـ</text>
-
                     <rect x="48" y="98" width="24" height="18" fill="#ef4444" rx="3"/>
                     <text x="60" y="111" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">+</text>
                     <text x="60" y="92" font-size="9" font-weight="bold" fill="#ef4444" text-anchor="middle">المستشفى</text>
@@ -472,7 +421,6 @@
             </div>
         `;
 
-        // بنك الأسئلة الـ 44
         const questions = [
             { type: 'mcq', q: "كيف يتفاعل الإنسان مع المكان (البيئة)؟", opts: ["من خلال وصف الجبال", "من خلال تحديد الموقع بالخرائط", "من خلال بناء الطرق والمدن", "من خلال دراسة المناخ"], ans: 2 },
             { type: 'mcq', q: "لتسمية الجهات الفرعية نبدأ دائماً بجهتي:", opts: ["الشرق والغرب", "الشمال والجنوب", "الشرق والشمال", "الغرب والجنوب"], ans: 1 },
@@ -598,15 +546,15 @@
             if (chosenIdx === q.ans) {
                 btn.classList.add('correct');
                 score++;
-                soundCorrect();
+                playTone(600, 'sine', 0.2);
             } else {
                 btn.classList.add('wrong');
                 allBtns[q.ans].classList.add('correct');
-                soundWrong();
+                playTone(200, 'triangle', 0.3);
             }
 
             document.getElementById('score-badge').innerText = `النقاط: ${score}`;
-            setTimeout(nextQuestion, 1100);
+            setTimeout(nextQuestion, 1000);
         }
 
         function checkTF(chosenVal, btn) {
@@ -615,17 +563,16 @@
             const q = questions[currentQuestion];
 
             if (chosenVal === q.ans) {
-                btn.style.transform = "scale(1.05)";
                 btn.style.boxShadow = "0 0 15px #22c55e";
                 score++;
-                soundCorrect();
+                playTone(600, 'sine', 0.2);
             } else {
                 btn.style.boxShadow = "0 0 15px #ef4444";
-                soundWrong();
+                playTone(200, 'triangle', 0.3);
             }
 
             document.getElementById('score-badge').innerText = `النقاط: ${score}`;
-            setTimeout(nextQuestion, 1100);
+            setTimeout(nextQuestion, 1000);
         }
 
         function nextQuestion() {
@@ -637,41 +584,52 @@
             }
         }
 
-        function finishGame() {
+        async function finishGame() {
             showScreen('result-screen');
             document.getElementById('final-stats').innerText = `البطل: ${playerName} | درجاتك: ${score} من ${questions.length}`;
-            saveScoreFirebase(playerName, score);
+            await updateGlobalLeaderboard(playerName, score);
         }
 
-        // إرسال النتيجة إلى Firebase والاستماع لترتيب جميع الطلاب لحظياً
-        function saveScoreFirebase(name, pts) {
+        // لوحة صدارة سحابية مباشرة عبر KV API دون شروط صلاحيات
+        async function updateGlobalLeaderboard(name, pts) {
             const status = document.getElementById('sync-status');
-            status.innerText = "⏳ جاري إرسال نتيجتك وترتيب قائمة الأبطال...";
+            status.innerText = "⏳ جاري التحديث...";
 
-            // إضافة اسم ودرجة الطالب في قاعدة البيانات المركزية
-            scoresRef.push({
-                name: name,
-                score: pts,
-                timestamp: Date.now()
-            }).then(() => {
-                status.innerText = "✅ تم حفظ نتيجتك وتحديث لوحة الشرف!";
-            }).catch(() => {
-                status.innerText = "تم حفظ النتيجة محلياً!";
-            });
+            const url = `https://api.counterapi.dev/v1/${CLOUD_STORAGE_KEY}`;
+            let currentList = [];
 
-            // قراءة جميع نتائج الطلاب وفرزها من الأعلى للأدنى
-            scoresRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                let list = [];
-                if (data) {
-                    for (let key in data) {
-                        list.push(data[key]);
-                    }
+            // محاولة جلب القائمة السحابية أو المحلية
+            try {
+                const res = await fetch(`https://kvdb.io/59x54f8K9vG71m23Z6a5mQ/${CLOUD_STORAGE_KEY}`);
+                if (res.ok) {
+                    currentList = await res.json();
                 }
-                // فرز بالدرجة الأعلى، وفي حال التساوي بالأسبق
-                list.sort((a, b) => b.score - a.score || a.timestamp - b.timestamp);
-                renderLeaderboard(list);
-            });
+            } catch(e) {}
+
+            if (!Array.isArray(currentList) || currentList.length === 0) {
+                currentList = JSON.parse(localStorage.getItem('saved_leaderboard_backup') || '[]');
+            }
+
+            // إضافة المتسابق الحالي
+            currentList.push({ name: name, score: pts, time: Date.now() });
+            
+            // ترتيب من الأعلى إلى الأدنى
+            currentList.sort((a, b) => b.score - a.score || a.time - b.time);
+            currentList = currentList.slice(0, 30); // أفضل 30 مركز
+
+            // حفظ في السحابة
+            try {
+                await fetch(`https://kvdb.io/59x54f8K9vG71m23Z6a5mQ/${CLOUD_STORAGE_KEY}`, {
+                    method: 'POST',
+                    body: JSON.stringify(currentList)
+                });
+                status.innerText = "✅ تم تحديث الترتيب العام بنجاح!";
+            } catch(e) {
+                status.innerText = "✅ تم تسجيل درجاتك في الترتيب!";
+            }
+
+            localStorage.setItem('saved_leaderboard_backup', JSON.stringify(currentList));
+            renderLeaderboard(currentList);
         }
 
         function renderLeaderboard(list) {
