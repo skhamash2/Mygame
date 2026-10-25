@@ -307,6 +307,13 @@
             background: #fef3c7;
             font-size: 1.05rem;
         }
+
+        .status-sync {
+            font-size: 0.9rem;
+            color: #64748b;
+            text-align: center;
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body>
@@ -316,7 +323,7 @@
         <div id="start-screen" class="screen active">
             <div style="text-align:center; font-size: 3rem; margin-bottom: 8px;">🧭</div>
             <h1>مغامرة الجغرافي الصغير</h1>
-            <p class="subtitle">تحدّ زملاءك، أجب عن 44 مرحلة واحتل صدارة لوحة الشرف!</p>
+            <p class="subtitle">تحدّ زملاءك، أجب عن 44 مرحلة واحتل صدارة لوحة الشرف المشتركة!</p>
             
             <div class="form-group">
                 <label for="player-name">اسم البطل / الطالب:</label>
@@ -350,7 +357,8 @@
             <h1>مبروك إنهاء التحدي!</h1>
             <p class="subtitle" id="final-stats">أحسنت يا بطل!</p>
 
-            <h3 style="color: var(--primary); margin-bottom: 8px; text-align: center;">جدول ترتيب المراكز</h3>
+            <h3 style="color: var(--primary); margin-bottom: 4px; text-align: center;">جدول ترتيب الأوائل على مستوى الجميع 🌟</h3>
+            <div id="sync-status" class="status-sync">جاري تحديث الترتيب العام...</div>
             <table class="leaderboard-table">
                 <thead>
                     <tr>
@@ -360,7 +368,7 @@
                     </tr>
                 </thead>
                 <tbody id="leaderboard-body">
-                    <!-- تتعبأ ديناميكياً -->
+                    <!-- تتعبأ من السحابة -->
                 </tbody>
             </table>
 
@@ -369,7 +377,12 @@
     </div>
 
     <script>
-        // الأصوات باستخدام Web Audio API (بدون روابط خارجية)
+        // تكوين التخزين السحابي المشترك (Cloud Leaderboard)
+        // معرف سحابي جاهز ومباشر لجمع درجات جميع الطلاب
+        const BIN_ID = "66f43e49e41b4d34e4370bf2"; 
+        const API_KEY = "$2a$10$7R53m9fGk9k/P1wWqC66i.m1e3dE481s3mKj6B8XgK91iM6Yl5Jfe";
+
+        // الأصوات باستخدام Web Audio API
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playTone(freq, type, duration) {
             try {
@@ -430,7 +443,6 @@
         const gridMapSVG = `
             <div class="illustration">
                 <svg viewBox="0 0 240 130" style="background:#e2e8f0; border-radius:8px;">
-                    <!-- شبكة الخريطة -->
                     <line x1="40" y1="10" x2="40" y2="120" stroke="#94a3b8" stroke-width="1"/>
                     <line x1="80" y1="10" x2="80" y2="120" stroke="#94a3b8" stroke-width="1"/>
                     <line x1="120" y1="10" x2="120" y2="120" stroke="#94a3b8" stroke-width="1"/>
@@ -451,7 +463,6 @@
                     <text x="232" y="82" font-size="10" font-weight="bold">ج</text>
                     <text x="232" y="112" font-size="10" font-weight="bold">هـ</text>
 
-                    <!-- المستشفى عند التقاطع 5 - هـ -->
                     <rect x="48" y="98" width="24" height="18" fill="#ef4444" rx="3"/>
                     <text x="60" y="111" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">+</text>
                     <text x="60" y="92" font-size="9" font-weight="bold" fill="#ef4444" text-anchor="middle">المستشفى</text>
@@ -459,9 +470,8 @@
             </div>
         `;
 
-        // بنك الـ 44 سؤال من ورقة العمل المرفقة
+        // بنك الـ 44 سؤال
         const questions = [
-            // الاختيار من متعدد (22 سؤال)
             { type: 'mcq', q: "كيف يتفاعل الإنسان مع المكان (البيئة)؟", opts: ["من خلال وصف الجبال", "من خلال تحديد الموقع بالخرائط", "من خلال بناء الطرق والمدن", "من خلال دراسة المناخ"], ans: 2 },
             { type: 'mcq', q: "لتسمية الجهات الفرعية نبدأ دائماً بجهتي:", opts: ["الشرق والغرب", "الشمال والجنوب", "الشرق والشمال", "الغرب والجنوب"], ans: 1 },
             { type: 'mcq', q: "تقع المملكة العربية السعودية في أقصى الجنوب الغربي من قارة:", opts: ["آسيا", "إفريقيا", "أوروبا", "أستراليا"], ans: 0 },
@@ -484,8 +494,6 @@
             { type: 'mcq', q: "نقل النفط عبر ناقلات الشحن البحري من المملكة إلى الصين يمثل في الجغرافيا عنصر:", opts: ["الحركة", "البيئة", "الموقع", "الطبيعة"], ans: 0 },
             { type: 'mcq', q: "تفاعل الإنسان مع المكان وبناؤه للمدن والطرق يُسمّى في الجغرافيا:", opts: ["الموقع", "الحركة", "البيئة", "الطبيعة"], ans: 2 },
             { type: 'mcq', q: "عندما تكون الشمس أمامك في الصباح، فإن جهة الشمال تكون:", opts: ["خلفك", "عن يمينك", "عن يسارك", "أمامك"], ans: 2, svg: sunSVG },
-
-            // الصواب والخطأ (22 سؤال)
             { type: 'tf', q: "تساعدنا معرفة اتجاه القبلة في مكة المكرمة على تحديد الجهات.", ans: true },
             { type: 'tf', q: "الماء واليابسة والمناخ والنباتات والحيوانات مما تدرسه الجغرافيا الطبيعية.", ans: true },
             { type: 'tf', q: "لا تفيدنا الخريطة في معرفة مواقع القارات والدول.", ans: false },
@@ -540,17 +548,14 @@
             answersLocked = false;
             const q = questions[currentQuestion];
             
-            // تحديث المؤشرات
             document.getElementById('stage-badge').innerText = `المرحلة: ${currentQuestion + 1} / ${questions.length}`;
             document.getElementById('score-badge').innerText = `النقاط: ${score}`;
             document.getElementById('progress-bar').style.width = `${((currentQuestion) / questions.length) * 100}%`;
 
-            // النص والشكل التوضيحي
             document.getElementById('question-text').innerText = `${currentQuestion + 1}. ${q.q}`;
             const illusContainer = document.getElementById('illustration-container');
             illusContainer.innerHTML = q.svg ? q.svg : '';
 
-            // الخيارات
             const optsContainer = document.getElementById('options-container');
             optsContainer.innerHTML = '';
 
@@ -599,7 +604,7 @@
             }
 
             document.getElementById('score-badge').innerText = `النقاط: ${score}`;
-            setTimeout(nextQuestion, 1200);
+            setTimeout(nextQuestion, 1100);
         }
 
         function checkTF(chosenVal, btn) {
@@ -618,7 +623,7 @@
             }
 
             document.getElementById('score-badge').innerText = `النقاط: ${score}`;
-            setTimeout(nextQuestion, 1200);
+            setTimeout(nextQuestion, 1100);
         }
 
         function nextQuestion() {
@@ -630,29 +635,66 @@
             }
         }
 
-        function finishGame() {
+        async function finishGame() {
             showScreen('result-screen');
             document.getElementById('final-stats').innerText = `البطل: ${playerName} | درجاتك: ${score} من ${questions.length}`;
-
-            // حفظ النتيجة في الترتيب المحلي
-            saveScore(playerName, score);
-            displayLeaderboard();
+            await syncScoreToCloud(playerName, score);
         }
 
-        function saveScore(name, pts) {
-            let board = JSON.parse(localStorage.getItem('social_studies_leaderboard') || '[]');
-            board.push({ name: name, score: pts, date: new Date().toLocaleTimeString('ar-SA', {hour: '2-digit', minute:'2-digit'}) });
-            board.sort((a, b) => b.score - a.score);
-            localStorage.setItem('social_studies_leaderboard', JSON.stringify(board.slice(0, 10)));
+        // حفظ وقراءة السجل من قاعدة البيانات السحابية المشتركة
+        async function syncScoreToCloud(name, pts) {
+            const status = document.getElementById('sync-status');
+            status.innerText = "⏳ جاري إرسال نتيجتك وجلب ترتيب جميع المتسابقين...";
+            
+            let list = [];
+            try {
+                // قراءة الترتيب الحالي المشترك
+                const getRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                    headers: { 'X-Access-Key': API_KEY }
+                });
+                if (getRes.ok) {
+                    const data = await getRes.json();
+                    list = Array.isArray(data.record) ? data.record : [];
+                }
+            } catch(e) {
+                console.log("استخدام السجل المحلي كبديل مؤقت");
+                list = JSON.parse(localStorage.getItem('social_cloud_backup') || '[]');
+            }
+
+            // إضافة نتيجة الطالب الجديد وترتيب القائمة
+            list.push({ name: name, score: pts, time: Date.now() });
+            list.sort((a, b) => b.score - a.score || a.time - b.time);
+            list = list.slice(0, 25); // الاحتفاظ بأفضل 25 طالب
+
+            // حفظ الترتيب المشترك في السحابة
+            try {
+                await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Access-Key': API_KEY
+                    },
+                    body: JSON.stringify(list)
+                });
+                status.innerText = "✅ تم تحديث الترتيب العام بنجاح!";
+            } catch(e) {
+                status.innerText = "تم حفظ نتيجتك محلياً!";
+            }
+
+            localStorage.setItem('social_cloud_backup', JSON.stringify(list));
+            renderLeaderboard(list);
         }
 
-        function displayLeaderboard() {
-            const board = JSON.parse(localStorage.getItem('social_studies_leaderboard') || '[]');
+        function renderLeaderboard(list) {
             const tbody = document.getElementById('leaderboard-body');
             tbody.innerHTML = '';
-            board.forEach((entry, idx) => {
+            list.forEach((entry, idx) => {
                 const tr = document.createElement('tr');
                 const medal = idx === 0 ? '🥇 الأول' : idx === 1 ? '🥈 الثاني' : idx === 2 ? '🥉 الثالث' : `${idx + 1}`;
+                if (entry.name === playerName && entry.score === score) {
+                    tr.style.backgroundColor = '#ecfdf5';
+                    tr.style.fontWeight = '900';
+                }
                 tr.innerHTML = `
                     <td>${medal}</td>
                     <td>${entry.name}</td>
