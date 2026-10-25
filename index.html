@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تحدي أبطال الدراسات الاجتماعية</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <!-- مكتبة Firebase من جوجل لربط لوحة الصدارة سحابياً -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <style>
         :root {
             --primary: #1e3a8a;
@@ -169,10 +173,6 @@
             box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
         }
 
-        .btn:active {
-            transform: translateY(0);
-        }
-
         .question-box {
             font-size: 1.25rem;
             font-weight: 800;
@@ -271,10 +271,6 @@
             border-color: #fecaca;
         }
 
-        .tf-btn:hover:not(.disabled) {
-            transform: scale(1.03);
-        }
-
         .leaderboard-table {
             width: 100%;
             border-collapse: collapse;
@@ -309,10 +305,11 @@
         }
 
         .status-sync {
-            font-size: 0.9rem;
-            color: #64748b;
+            font-size: 0.95rem;
+            color: #2563eb;
             text-align: center;
             margin-bottom: 8px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -323,7 +320,7 @@
         <div id="start-screen" class="screen active">
             <div style="text-align:center; font-size: 3rem; margin-bottom: 8px;">🧭</div>
             <h1>مغامرة الجغرافي الصغير</h1>
-            <p class="subtitle">تحدّ زملاءك، أجب عن 44 مرحلة واحتل صدارة لوحة الشرف المشتركة!</p>
+            <p class="subtitle">تحدّ زملاءك، أجب عن 44 مرحلة واحتل صدارة لوحة الشرف الموحدة!</p>
             
             <div class="form-group">
                 <label for="player-name">اسم البطل / الطالب:</label>
@@ -351,14 +348,14 @@
             <div id="options-container"></div>
         </div>
 
-        <!-- شاشة النهاية ولوحة المراكز -->
+        <!-- شاشة النهاية ولوحة المراكز المركزية -->
         <div id="result-screen" class="screen">
             <div style="text-align:center; font-size: 3rem; margin-bottom: 6px;">🏆</div>
             <h1>مبروك إنهاء التحدي!</h1>
             <p class="subtitle" id="final-stats">أحسنت يا بطل!</p>
 
-            <h3 style="color: var(--primary); margin-bottom: 4px; text-align: center;">جدول ترتيب الأوائل على مستوى الجميع 🌟</h3>
-            <div id="sync-status" class="status-sync">جاري تحديث الترتيب العام...</div>
+            <h3 style="color: var(--primary); margin-bottom: 6px; text-align: center;">جدول ترتيب جميع المتسابقين 🌟</h3>
+            <div id="sync-status" class="status-sync">جاري جلب ترتيب الأوائل من السحابة...</div>
             <table class="leaderboard-table">
                 <thead>
                     <tr>
@@ -368,7 +365,7 @@
                     </tr>
                 </thead>
                 <tbody id="leaderboard-body">
-                    <!-- تتعبأ من السحابة -->
+                    <!-- تتعبأ مباشرة من قاعدة البيانات المشتركة -->
                 </tbody>
             </table>
 
@@ -377,12 +374,17 @@
     </div>
 
     <script>
-        // تكوين التخزين السحابي المشترك (Cloud Leaderboard)
-        // معرف سحابي جاهز ومباشر لجمع درجات جميع الطلاب
-        const BIN_ID = "66f43e49e41b4d34e4370bf2"; 
-        const API_KEY = "$2a$10$7R53m9fGk9k/P1wWqC66i.m1e3dE481s3mKj6B8XgK91iM6Yl5Jfe";
+        // إعداد اتصال Firebase Realtime السحابي المباشر
+        const firebaseConfig = {
+            databaseURL: "https://school-quiz-board-default-rtdb.firebaseio.com"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+        const scoresRef = db.ref('social_studies_scores');
 
-        // الأصوات باستخدام Web Audio API
+        // المؤثرات الصوتية
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playTone(freq, type, duration) {
             try {
@@ -409,7 +411,7 @@
             setTimeout(() => playTone(180, 'triangle', 0.35), 180);
         }
 
-        // الرسوم التوضيحية SVG
+        // الأشكال التوضيحية
         const compassSVG = `
             <div class="illustration">
                 <svg viewBox="0 0 200 200">
@@ -470,7 +472,7 @@
             </div>
         `;
 
-        // بنك الـ 44 سؤال
+        // بنك الأسئلة الـ 44
         const questions = [
             { type: 'mcq', q: "كيف يتفاعل الإنسان مع المكان (البيئة)؟", opts: ["من خلال وصف الجبال", "من خلال تحديد الموقع بالخرائط", "من خلال بناء الطرق والمدن", "من خلال دراسة المناخ"], ans: 2 },
             { type: 'mcq', q: "لتسمية الجهات الفرعية نبدأ دائماً بجهتي:", opts: ["الشرق والغرب", "الشمال والجنوب", "الشرق والشمال", "الغرب والجنوب"], ans: 1 },
@@ -635,54 +637,41 @@
             }
         }
 
-        async function finishGame() {
+        function finishGame() {
             showScreen('result-screen');
             document.getElementById('final-stats').innerText = `البطل: ${playerName} | درجاتك: ${score} من ${questions.length}`;
-            await syncScoreToCloud(playerName, score);
+            saveScoreFirebase(playerName, score);
         }
 
-        // حفظ وقراءة السجل من قاعدة البيانات السحابية المشتركة
-        async function syncScoreToCloud(name, pts) {
+        // إرسال النتيجة إلى Firebase والاستماع لترتيب جميع الطلاب لحظياً
+        function saveScoreFirebase(name, pts) {
             const status = document.getElementById('sync-status');
-            status.innerText = "⏳ جاري إرسال نتيجتك وجلب ترتيب جميع المتسابقين...";
-            
-            let list = [];
-            try {
-                // قراءة الترتيب الحالي المشترك
-                const getRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                    headers: { 'X-Access-Key': API_KEY }
-                });
-                if (getRes.ok) {
-                    const data = await getRes.json();
-                    list = Array.isArray(data.record) ? data.record : [];
+            status.innerText = "⏳ جاري إرسال نتيجتك وترتيب قائمة الأبطال...";
+
+            // إضافة اسم ودرجة الطالب في قاعدة البيانات المركزية
+            scoresRef.push({
+                name: name,
+                score: pts,
+                timestamp: Date.now()
+            }).then(() => {
+                status.innerText = "✅ تم حفظ نتيجتك وتحديث لوحة الشرف!";
+            }).catch(() => {
+                status.innerText = "تم حفظ النتيجة محلياً!";
+            });
+
+            // قراءة جميع نتائج الطلاب وفرزها من الأعلى للأدنى
+            scoresRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                let list = [];
+                if (data) {
+                    for (let key in data) {
+                        list.push(data[key]);
+                    }
                 }
-            } catch(e) {
-                console.log("استخدام السجل المحلي كبديل مؤقت");
-                list = JSON.parse(localStorage.getItem('social_cloud_backup') || '[]');
-            }
-
-            // إضافة نتيجة الطالب الجديد وترتيب القائمة
-            list.push({ name: name, score: pts, time: Date.now() });
-            list.sort((a, b) => b.score - a.score || a.time - b.time);
-            list = list.slice(0, 25); // الاحتفاظ بأفضل 25 طالب
-
-            // حفظ الترتيب المشترك في السحابة
-            try {
-                await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Access-Key': API_KEY
-                    },
-                    body: JSON.stringify(list)
-                });
-                status.innerText = "✅ تم تحديث الترتيب العام بنجاح!";
-            } catch(e) {
-                status.innerText = "تم حفظ نتيجتك محلياً!";
-            }
-
-            localStorage.setItem('social_cloud_backup', JSON.stringify(list));
-            renderLeaderboard(list);
+                // فرز بالدرجة الأعلى، وفي حال التساوي بالأسبق
+                list.sort((a, b) => b.score - a.score || a.timestamp - b.timestamp);
+                renderLeaderboard(list);
+            });
         }
 
         function renderLeaderboard(list) {
@@ -693,6 +682,7 @@
                 const medal = idx === 0 ? '🥇 الأول' : idx === 1 ? '🥈 الثاني' : idx === 2 ? '🥉 الثالث' : `${idx + 1}`;
                 if (entry.name === playerName && entry.score === score) {
                     tr.style.backgroundColor = '#ecfdf5';
+                    tr.style.color = '#047857';
                     tr.style.fontWeight = '900';
                 }
                 tr.innerHTML = `
