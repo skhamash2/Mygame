@@ -292,15 +292,15 @@
 <body>
 
     <div class="game-card">
-        <!-- شاشة تسجيل الدخول -->
+        <!-- شاشة البداية -->
         <div id="start-screen" class="screen active">
             <div style="text-align:center; font-size: 3rem; margin-bottom: 8px;">🧭</div>
             <h1>مغامرة الجغرافي الصغير</h1>
-            <p class="subtitle">تحدّ زملاءك، أجب عن 44 مرحلة واحتل صدارة الترتيب!</p>
+            <p class="subtitle">تحدّ زملاءك، أجب عن 44 مرحلة واحتل صدارة الترتيب العام!</p>
             
             <div class="form-group">
                 <label for="player-name">اسم الطالب:</label>
-                <input type="text" id="player-name" placeholder="اكتب اسمك هنا..." autocomplete="off">
+                <input type="text" id="player-name" placeholder="اكتب اسمك الثلاثي هنا..." autocomplete="off">
             </div>
 
             <button class="btn" onclick="startGame()">انطلاق التحدي 🚀</button>
@@ -322,14 +322,14 @@
             <div id="options-container"></div>
         </div>
 
-        <!-- شاشة النهاية ولوحة الصدارة الموحدة -->
+        <!-- شاشة النهاية ولوحة المراكز -->
         <div id="result-screen" class="screen">
             <div style="text-align:center; font-size: 3rem; margin-bottom: 6px;">🏆</div>
             <h1>مبروك إنهاء التحدي!</h1>
             <p class="subtitle" id="final-stats"></p>
 
             <h3 style="color: var(--primary); margin-bottom: 6px; text-align: center;">جدول ترتيب جميع المتسابقين 🌟</h3>
-            <div id="sync-status" class="status-sync">جاري تحميل قائمة الأبطال...</div>
+            <div id="sync-status" class="status-sync">جاري إرسال النتيجة وجلب قائمة الأبطال...</div>
             <table class="leaderboard-table">
                 <thead>
                     <tr>
@@ -346,10 +346,10 @@
     </div>
 
     <script>
-        // مفتاح قاعدة البيانات السحابية الحرة
-        const CLOUD_STORAGE_KEY = "skhamash2_social_quiz_board_v1";
+        // رابط API المخصص لقاعدة البيانات السحابية
+        const SHEETDB_API_URL = "https://sheetdb.io/api/v1/0sbiifzmzotk6";
 
-        // مؤثرات صوتية
+        // مؤثرات صوتية عبر المتصفح
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playTone(freq, type, duration) {
             try {
@@ -587,58 +587,63 @@
         async function finishGame() {
             showScreen('result-screen');
             document.getElementById('final-stats').innerText = `البطل: ${playerName} | درجاتك: ${score} من ${questions.length}`;
-            await updateGlobalLeaderboard(playerName, score);
+            await syncToGlobalSheets(playerName, score);
         }
 
-        // لوحة صدارة سحابية مباشرة عبر KV API دون شروط صلاحيات
-        async function updateGlobalLeaderboard(name, pts) {
+        // إرسال النتيجة وجلب الترتيب المشترك من Google Sheets عبر SheetDB
+        async function syncToGlobalSheets(name, pts) {
             const status = document.getElementById('sync-status');
-            status.innerText = "⏳ جاري التحديث...";
+            status.innerText = "⏳ جاري إرسال النتيجة إلى السحابة وتحديث الترتيب...";
 
-            const url = `https://api.counterapi.dev/v1/${CLOUD_STORAGE_KEY}`;
-            let currentList = [];
-
-            // محاولة جلب القائمة السحابية أو المحلية
             try {
-                const res = await fetch(`https://kvdb.io/59x54f8K9vG71m23Z6a5mQ/${CLOUD_STORAGE_KEY}`);
-                if (res.ok) {
-                    currentList = await res.json();
-                }
-            } catch(e) {}
-
-            if (!Array.isArray(currentList) || currentList.length === 0) {
-                currentList = JSON.parse(localStorage.getItem('saved_leaderboard_backup') || '[]');
-            }
-
-            // إضافة المتسابق الحالي
-            currentList.push({ name: name, score: pts, time: Date.now() });
-            
-            // ترتيب من الأعلى إلى الأدنى
-            currentList.sort((a, b) => b.score - a.score || a.time - b.time);
-            currentList = currentList.slice(0, 30); // أفضل 30 مركز
-
-            // حفظ في السحابة
-            try {
-                await fetch(`https://kvdb.io/59x54f8K9vG71m23Z6a5mQ/${CLOUD_STORAGE_KEY}`, {
+                // إرسال النتيجة كطلب POST
+                await fetch(SHEETDB_API_URL, {
                     method: 'POST',
-                    body: JSON.stringify(currentList)
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        data: [{
+                            name: name,
+                            score: pts,
+                            time: new Date().toLocaleString('ar-SA')
+                        }]
+                    })
                 });
-                status.innerText = "✅ تم تحديث الترتيب العام بنجاح!";
             } catch(e) {
-                status.innerText = "✅ تم تسجيل درجاتك في الترتيب!";
+                console.error("خطأ أثناء الإرسال:", e);
             }
 
-            localStorage.setItem('saved_leaderboard_backup', JSON.stringify(currentList));
-            renderLeaderboard(currentList);
+            // قراءة جميع المشاركات من الشيت
+            let allParticipants = [];
+            try {
+                const res = await fetch(SHEETDB_API_URL);
+                if (res.ok) {
+                    allParticipants = await res.json();
+                }
+            } catch(e) {
+                console.error("خطأ أثناء القراءة:", e);
+            }
+
+            // ترتيب المراكز من الدرجة الأعلى إلى الأدنى
+            if (Array.isArray(allParticipants)) {
+                allParticipants.sort((a, b) => Number(b.score) - Number(a.score));
+            } else {
+                allParticipants = [{ name: name, score: pts }];
+            }
+
+            status.innerText = "✅ تم تحديث لوحة الشرف بنجاح!";
+            renderLeaderboard(allParticipants);
         }
 
         function renderLeaderboard(list) {
             const tbody = document.getElementById('leaderboard-body');
             tbody.innerHTML = '';
-            list.forEach((entry, idx) => {
+            list.slice(0, 30).forEach((entry, idx) => {
                 const tr = document.createElement('tr');
                 const medal = idx === 0 ? '🥇 الأول' : idx === 1 ? '🥈 الثاني' : idx === 2 ? '🥉 الثالث' : `${idx + 1}`;
-                if (entry.name === playerName && entry.score === score) {
+                if (entry.name === playerName && Number(entry.score) === score) {
                     tr.style.backgroundColor = '#ecfdf5';
                     tr.style.color = '#047857';
                     tr.style.fontWeight = '900';
