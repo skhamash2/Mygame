@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فرسان التاريخ - الدولة السعودية الثانية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --heritage-primary: #8b3a1b;     /* لون الطين والقصور النجدية */
+            --heritage-secondary: #c27d38;   /* لون رمال الصحراء الذهبي */
+            --heritage-dark: #3e1f13;        /* بني داكن */
+            --heritage-light: #fef7ee;       /* بيج فاتح دافئ */
+            --accent-gold: #d97706;          /* ذهبي لامع */
+            --accent-green: #15803d;         /* أخضر التوحيد */
+            --danger: #b91c1c;
+            --card-bg: #ffffff;
+            --text-main: #271e1b;
+            --text-muted: #78645d;
+            --border-rad: 22px;
+            --shadow: 0 12px 30px -6px rgba(90, 42, 22, 0.18);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f7efe5 0%, #ecd7c0 50%, #dfbe9f 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            color: var(--text-main);
+        }
+
+        .game-card {
+            background: var(--card-bg);
+            border-radius: var(--border-rad);
+            width: 100%;
+            max-width: 680px;
+            box-shadow: var(--shadow);
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #ecd5bf;
+        }
+
+        /* شريط علوي تراثي */
+        .game-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: repeating-linear-gradient(45deg, var(--heritage-primary), var(--heritage-primary) 15px, var(--accent-gold) 15px, var(--accent-gold) 30px);
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px dashed #eedfce;
+        }
+
+        .badge {
+            background: #faeedf;
+            color: var(--heritage-primary);
+            padding: 6px 15px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            border: 1px solid #ebd3ba;
+        }
+
+        .score-pill {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 6px 15px;
+            border-radius: 50px;
+            font-weight: 800;
+            border: 1px solid #fde68a;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: #ebdcd0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--heritage-secondary), var(--heritage-primary));
+            width: 0%;
+            transition: width 0.35s ease;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: var(--heritage-primary);
+            font-size: 1.85rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            font-size: 1.05rem;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 800;
+            color: var(--heritage-dark);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #dfc9b5;
+            background: #fffcf8;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--heritage-primary);
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--heritage-primary), var(--heritage-secondary));
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.15rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(139, 58, 27, 0.3);
+            transition: transform 0.15s;
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .question-box {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--heritage-dark);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .illustration {
+            width: 100%;
+            max-height: 190px;
+            margin-bottom: 20px;
+            background: #fbf7f2;
+            border-radius: 14px;
+            border: 1px dashed #d6bfa8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+        }
+
+        .illustration svg {
+            width: 100%;
+            height: 100%;
+            max-height: 170px;
+        }
+
+        .options-list {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: #fffcf8;
+            border: 2px solid #ecd8c5;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            text-align: right;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--text-main);
+        }
+
+        .option-btn:hover:not(.disabled) {
+            background: #faeedf;
+            border-color: var(--heritage-secondary);
+            transform: translateX(-3px);
+        }
+
+        .option-btn.correct {
+            background: #ecfdf5 !important;
+            border-color: #10b981 !important;
+            color: #065f46 !important;
+        }
+
+        .option-btn.wrong {
+            background: #fef2f2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+
+        .tf-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .tf-btn {
+            padding: 18px;
+            border-radius: 14px;
+            font-size: 1.3rem;
+            font-weight: 800;
+            border: 2px solid transparent;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.15s;
+        }
+
+        .tf-btn.true-btn {
+            background: #f0fdf4;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+
+        .tf-btn.false-btn {
+            background: #fef2f2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #ebd9c8;
+        }
+
+        .leaderboard-table th {
+            background: var(--heritage-primary);
+            color: #fff;
+            padding: 12px;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        .leaderboard-table td {
+            padding: 11px 12px;
+            border-bottom: 1px solid #f3e5d8;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .leaderboard-table tr:nth-child(even) {
+            background: #fbf5ee;
+        }
+
+        .leaderboard-table tr:first-child td {
+            color: #92400e;
+            background: #fef3c7;
+            font-size: 1.05rem;
+        }
+
+        .status-sync {
+            font-size: 0.95rem;
+            color: var(--heritage-primary);
+            text-align: center;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-card">
+        <!-- شاشة البداية -->
+        <div id="start-screen" class="screen active">
+            <div style="text-align:center; font-size: 3.2rem; margin-bottom: 8px;">🏰</div>
+            <h1>تحدي أبطال الدولة السعودية الثانية</h1>
+            <p class="subtitle">استعرض معلوماتك التاريخية، خض 44 مرحلة، وسجل اسمك في لوحة فرسان الوطن!</p>
+            
+            <div class="form-group">
+                <label for="player-name">اسم الطالب البطل:</label>
+                <input type="text" id="player-name" placeholder="اكتب اسمك الثلاثي هنا..." autocomplete="off">
+            </div>
+
+            <button class="btn" onclick="startGame()">بدء المغامرة التاريخية ⚔️</button>
+        </div>
+
+        <!-- شاشة الأسئلة -->
+        <div id="quiz-screen" class="screen">
+            <div class="header-bar">
+                <div class="badge" id="stage-badge">المرحلة: 1 / 44</div>
+                <div class="score-pill" id="score-badge">النقاط: 0</div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+
+            <div id="illustration-container"></div>
+            <div class="question-box" id="question-text">...</div>
+            <div id="options-container"></div>
+        </div>
+
+        <!-- شاشة النهاية ولوحة الشرف المشتركة -->
+        <div id="result-screen" class="screen">
+            <div style="text-align:center; font-size: 3.2rem; margin-bottom: 6px;">🏅</div>
+            <h1>كفو يا بطل! أنهيت التحدي</h1>
+            <p class="subtitle" id="final-stats"></p>
+
+            <h3 style="color: var(--heritage-primary); margin-bottom: 6px; text-align: center;">لوحة شرف فرسان التاريخ 🌟</h3>
+            <div id="sync-status" class="status-sync">جاري إرسال النتيجة وجلب قائمة الأبطال المشتركة...</div>
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>المركز</th>
+                        <th>اسم الطالب</th>
+                        <th>الدرجة</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body"></tbody>
+            </table>
+
+            <button class="btn" style="margin-top: 14px;" onclick="resetGame()">إعادة التحدي 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        // رابط الـ API المشترك الخاص بك
+        const SHEETDB_API_URL = "https://sheetdb.io/api/v1/0sbiifzmzotk6";
+
+        // مؤثرات صوتية
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playTone(freq, type, duration) {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.value = freq;
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e){}
+        }
+
+        // الرسومات التاريخية بـ SVG
+        const fortSVG = `
+            <div class="illustration">
+                <svg viewBox="0 0 240 120">
+                    <rect x="0" y="0" width="240" height="120" fill="#fdf6ed"/>
+                    <!-- أسوار القلعة وشرفاتها النجدية المثلثة -->
+                    <rect x="30" y="45" width="180" height="70" fill="#c27d38" stroke="#8b3a1b" stroke-width="2"/>
+                    <rect x="20" y="30" width="40" height="85" fill="#a85d26" stroke="#8b3a1b" stroke-width="2"/>
+                    <rect x="180" y="30" width="40" height="85" fill="#a85d26" stroke="#8b3a1b" stroke-width="2"/>
+                    <!-- مثلثات الشرفات الطينية النجدية -->
+                    <polygon points="25,30 30,20 35,30" fill="#fdf6ed"/>
+                    <polygon points="45,30 50,20 55,30" fill="#fdf6ed"/>
+                    <polygon points="185,30 190,20 195,30" fill="#fdf6ed"/>
+                    <polygon points="205,30 210,20 215,30" fill="#fdf6ed"/>
+                    <polygon points="75,45 80,35 85,45" fill="#fdf6ed"/>
+                    <polygon points="115,45 120,35 125,45" fill="#fdf6ed"/>
+                    <polygon points="155,45 160,35 165,45" fill="#fdf6ed"/>
+                    <!-- بوابة القلعة -->
+                    <path d="M105,115 A15,20 0 0,1 135,115 Z" fill="#3e1f13"/>
+                    <text x="120" y="24" font-size="11" font-weight="bold" fill="#8b3a1b" text-anchor="middle">قلعة أثرية (بلدة الحلوة)</text>
+                </svg>
+            </div>
+        `;
+
+        const swordSVG = `
+            <div class="illustration">
+                <svg viewBox="0 0 240 110">
+                    <rect x="0" y="0" width="240" height="110" fill="#fdf6ed"/>
+                    <!-- نصل السيف الأجرب -->
+                    <path d="M30 65 Q110 50 195 55 Q210 57 215 62 Q195 72 30 65 Z" fill="#cbd5e1" stroke="#475569" stroke-width="2"/>
+                    <!-- مقبض السيف المذهب -->
+                    <rect x="18" y="58" width="16" height="14" rx="3" fill="#d97706" stroke="#78350f" stroke-width="1.5"/>
+                    <circle cx="15" cy="65" r="5" fill="#b45309"/>
+                    <line x1="34" y1="50" x2="34" y2="80" stroke="#b45309" stroke-width="4"/>
+                    <text x="120" y="32" font-size="12" font-weight="900" fill="#8b3a1b" text-anchor="middle">سيف «الأجرب» للإمام تركي بن عبد الله</text>
+                </svg>
+            </div>
+        `;
+
+        const mapSaudi2SVG = `
+            <div class="illustration">
+                <svg viewBox="0 0 240 130">
+                    <rect x="0" y="0" width="240" height="130" fill="#e0f2fe"/>
+                    <!-- اليابسة وشبه الجزيرة -->
+                    <path d="M25,15 L190,15 L225,50 L200,95 L170,120 L75,120 L35,80 Z" fill="#fde68a" stroke="#d97706" stroke-width="1.5"/>
+                    <!-- رقعة الدولة السعودية الثانية الخضراء -->
+                    <path d="M55,30 Q120,20 160,35 Q185,55 160,95 Q110,110 70,85 Z" fill="#15803d" opacity="0.85"/>
+                    <text x="108" y="60" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">إقليم نجد</text>
+                    <text x="145" y="45" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">الأحساء</text>
+                    <text x="42" y="55" font-size="9" font-weight="bold" fill="#b45309" text-anchor="middle">الحجاز</text>
+                    <text x="185" y="30" font-size="9" font-weight="bold" fill="#0284c7" text-anchor="middle">الخليج العربي</text>
+                </svg>
+            </div>
+        `;
+
+        // بنك الأسئلة الـ 44 المستخرج كاملاً من ملف الدولة السعودية الثانية
+        const questions = [
+            // أسئلة الاختيار من متعدد (22 سؤالاً)
+            { type: 'mcq', q: "في أي عام هجري توفي الإمام فيصل بن تركي بعد أن استمر في حكم الدولة السعودية الثانية؟", opts: ["عام ١٢٨٢هـ", "عام ١٢٥٣هـ", "عام ١٢٥٠هـ", "عام ١٣٠٧هـ"], ans: 0 },
+            { type: 'mcq', q: "وقعت في بلدة الحلوة سنة ١٢٥٣هـ معركة بين السعوديين والقوات العثمانية المعتدية. بأي اسم يسميها الأهالي؟", opts: ["معركة المليداء", "معركة الروم", "معركة حوطة بني تميم", "معركة الدرعية"], ans: 1, svg: fortSVG },
+            { type: 'mcq', q: "من هو أمير حائل الذي استغل الفوضى والنزاعات الداخلية للاستيلاء على الحكم؟", opts: ["إسماعيل آغا", "خورشيد باشا", "محمد بن رشيد", "سعود بن فيصل"], ans: 2 },
+            { type: 'mcq', q: "إلى أين انتقل الإمام عبد الرحمن بن فيصل وأسرته بعد نهاية الدولة السعودية الثانية؟", opts: ["مصر", "الشام", "الكويت", "العراق"], ans: 2 },
+            { type: 'mcq', q: "ما هي المدينة التي اتخذت عاصمة للدولة السعودية الثانية بعد الدرعية؟", opts: ["حائل", "الرياض", "الدرعية", "الأحساء"], ans: 1 },
+            { type: 'mcq', q: "تبين خريطة امتداد الدولة السعودية الثانية وجود أقاليم تابعة لها، أي المناطق الآتية كان خارج هذا الامتداد؟", opts: ["نجد", "الحجاز", "وادي الدواسر", "الأحساء"], ans: 1, svg: mapSaudi2SVG },
+            { type: 'mcq', q: "من هو الإمام الذي أعاد تأسيس الدولة السعودية في دورها الثاني وأصبح إمامها الأول وبنى جامعها الكبير؟", opts: ["الإمام تركي بن عبد الله", "الإمام فيصل بن تركي", "الإمام عبد الله بن فيصل", "الإمام عبد الرحمن بن فيصل"], ans: 0 },
+            { type: 'mcq', q: "إلى أين نُقل الإمام فيصل بن تركي بعد أسره في القلعة الحصينة؟", opts: ["إلى العراق", "إلى مصر", "إلى الكويت", "إلى الشام"], ans: 1 },
+            { type: 'mcq', q: "ما نتيجة معركة الحلوة سنة ١٢٥٣هـ بين السعوديين والقوات العثمانية المعتدية؟", opts: ["انتصار القوات المعتدية", "انسحاب السعوديين دون قتال", "هزيمة القوات المعتدية وتكبيدها خسائر كبيرة", "توقف القتال دون خسائر"], ans: 2, svg: fortSVG },
+            { type: 'mcq', q: "في أي عام هجري تم تأسيس الدولة السعودية الثانية على يد الإمام تركي بن عبد الله؟", opts: ["١٢٣٠هـ", "١٢٤٠هـ", "١١٥٧هـ", "١٣١٩هـ"], ans: 1 },
+            { type: 'mcq', q: "غادر الإمام عبد الرحمن بن فيصل مدينة الرياض ومعه أسرته وابنه الملك عبد العزيز حتى استقروا في:", opts: ["الدرعية", "الكويت", "حائل", "المليداء"], ans: 1 },
+            { type: 'mcq', q: "ما اسم السيف الشهير الذي كان يملكه الإمام تركي بن عبد الله واشتهر بقيادة المعارك به؟", opts: ["الأجرب", "البتار", "الصقلاوي", "المهند"], ans: 0, svg: swordSVG },
+            { type: 'mcq', q: "من هو مؤسس الدولة السعودية الثانية؟", opts: ["الإمام محمد بن سعود", "الإمام فيصل بن تركي", "الإمام تركي بن عبد الله", "الإمام عبد الرحمن بن فيصل"], ans: 2 },
+            { type: 'mcq', q: "ما هي المعركة التي انتصر فيها محمد بن رشيد عام ١٣٠٨هـ وأدت لنهاية الدولة السعودية الثانية؟", opts: ["معركة الحلوة", "معركة المليداء", "معركة الدرعية", "معركة الرياض"], ans: 1 },
+            { type: 'mcq', q: "المدينة التي اتخذها الإمام تركي بن عبد الله عاصمة للدولة وبنى فيها جامعه الكبير وأعاد بناء أسوارها هي:", opts: ["الدرعية", "الرياض", "حائل", "الأحساء"], ans: 1 },
+            { type: 'mcq', q: "في أي عام توفي الإمام فيصل بن تركي رحمه الله؟", opts: ["١٢٥٠هـ", "١٢٥٣هـ", "١٢٨٢هـ", "١٢٩١هـ"], ans: 2 },
+            { type: 'mcq', q: "من قائد التعزيزات الجديدة التي جاءت للأعداء بعد هزيمتهم في معركة الحلوة؟", opts: ["محمد بن رشيد", "الإمام سعود بن فيصل", "الإمام عبد الله بن فيصل", "خورشيد باشا"], ans: 3 },
+            { type: 'mcq', q: "من الإمام الذي تولى الحكم في الدولة السعودية الثانية مباشرة بعد وفاة الإمام تركي بن عبد الله؟", opts: ["الإمام عبد الله بن فيصل", "الإمام عبد الرحمن بن فيصل", "الإمام فيصل بن تركي", "الإمام سعود بن فيصل"], ans: 2 },
+            { type: 'mcq', q: "أعاد الإمام تركي بن عبد الله لعاصمته دورها التاريخي، فما العمل الذي قام به لحمايتها؟", opts: ["بنى أسوارها", "حفر آبارها", "شق طرقها", "وسع أسواقها"], ans: 0 },
+            { type: 'mcq', q: "من هو آخر أئمة الدولة السعودية الثانية؟", opts: ["الإمام تركي بن عبد الله", "الإمام فيصل بن تركي", "الإمام عبد الرحمن بن فيصل", "الإمام عبد الله بن فيصل"], ans: 2 },
+            { type: 'mcq', q: "سُميت معركة الحلوة بـ (معركة الروم) لكثرة:", opts: ["القتلى في صفوف القوات العثمانية المعتدية", "الخيول المشاركة في القتال", "الأسلحة التي استولى عليها السعوديون", "المدافع المستخدمة"], ans: 0, svg: fortSVG },
+            { type: 'mcq', q: "محافظة في منطقة الرياض تتبعها بلدة الحلوة التي وقعت فيها المعركة الكبرى:", opts: ["حوطة بني تميم", "الخرج", "الدرعية", "الدوادمي"], ans: 0 },
+
+            // أسئلة الصواب والخطأ (22 سؤالاً)
+            { type: 'tf', q: "الإمام عبد الرحمن بن فيصل بن تركي هو أول أئمة الدولة السعودية الثانية.", ans: false },
+            { type: 'tf', q: "بنى الإمام تركي بن عبد الله جامعه الكبير في مدينة الدرعية بعد أن اتخذها عاصمة.", ans: false },
+            { type: 'tf', q: "وقعت معركة الحلوة سنة ١٢٥٣هـ في عهد الإمام تركي بن عبد الله.", ans: false, svg: fortSVG },
+            { type: 'tf', q: "تمكن الإمام تركي بن عبد الله من النجاة والفرار أثناء حصار الدرعية.", ans: true },
+            { type: 'tf', q: "قاوم السعوديون القوات العثمانية المعتدية وكبدوها خسائر كبيرة في معركة الحلوة.", ans: true, svg: fortSVG },
+            { type: 'tf', q: "انتهت معركة المليداء عام ١٣٠٨هـ بانتصار الإمام عبد الرحمن بن فيصل.", ans: false },
+            { type: 'tf', q: "استسلم الإمام فيصل بن تركي للقوات العثمانية خوفاً على حياته الشخصية.", ans: false },
+            { type: 'tf', q: "تبين الخرائط التاريخية أن نفوذ الدولة السعودية الثانية وصل إلى سواحل الخليج العربي.", ans: true, svg: mapSaudi2SVG },
+            { type: 'tf', q: "تولى الإمام عبد الرحمن بن فيصل الحكم بعد وفاة أخيه الإمام عبد الله عام ١٣٠٧هـ.", ans: true },
+            { type: 'tf', q: "عادت شبه الجزيرة العربية بعد نهاية الدولة السعودية الثانية فوراً إلى الوحدة والاستقرار.", ans: false },
+            { type: 'tf', q: "يُسمي أهالي الحلوة معركة عام ١٢٥٣هـ بمعركة الروم لكثرة من قُتل من المعتدين.", ans: true, svg: fortSVG },
+            { type: 'tf', q: "تولى الإمام فيصل بن تركي الحكم بعد وفاة والده في عام ١٢٤٩هـ.", ans: true },
+            { type: 'tf', q: "يقع إقليم نجد خارج امتداد وحدود نفوذ الدولة السعودية الثانية.", ans: false, svg: mapSaudi2SVG },
+            { type: 'tf', q: "استمرت الدولة السعودية الثانية بعد معركة المليداء لفترة طويلة.", ans: false },
+            { type: 'tf', q: "قاد إسماعيل آغا الحملات العثمانية المعتدية على الرياض عام ١٢٥٠هـ.", ans: true },
+            { type: 'tf', q: "الجامع الكبير في الرياض بناه الإمام تركي بن عبد الله في عاصمة الدولة الجديدة.", ans: true },
+            { type: 'tf', q: "استمرت الدولة السعودية الثانية في قوتها وتوحدها التام طوال فترة حكم الإمام عبد الله بن فيصل.", ans: false },
+            { type: 'tf', q: "ولد الملك عبد العزيز بن عبد الرحمن آل سعود في الرياض عام ١٢٩٣هـ.", ans: true },
+            { type: 'tf', q: "عادت الدولة السعودية مرة ثالثة على يد الملك عبد العزيز رحمه الله.", ans: true },
+            { type: 'tf', q: "عُرف عن الإمام عبد الرحمن بن فيصل اطلاعه الواسع في الطب النبوي.", ans: true },
+            { type: 'tf', q: "تقع بلدة الحلوة في محافظة حوطة بني تميم بمنطقة الرياض.", ans: true, svg: fortSVG },
+            { type: 'tf', q: "سيف الإمام تركي بن عبد الله الشهير يُسمى بسيف (الأجرب).", ans: true, svg: swordSVG }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let playerName = "";
+        let answersLocked = false;
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function startGame() {
+            const input = document.getElementById('player-name');
+            if (!input.value.trim()) {
+                alert("فضلًا اكتب اسمك أولاً للدخول في التحدي التاريخي!");
+                return;
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            playerName = input.value.trim();
+            currentQuestion = 0;
+            score = 0;
+            showScreen('quiz-screen');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answersLocked = false;
+            const q = questions[currentQuestion];
+            
+            document.getElementById('stage-badge').innerText = `المرحلة: ${currentQuestion + 1} / ${questions.length}`;
+            document.getElementById('score-badge').innerText = `النقاط: ${score}`;
+            document.getElementById('progress-bar').style.width = `${((currentQuestion) / questions.length) * 100}%`;
+
+            document.getElementById('question-text').innerText = `${currentQuestion + 1}. ${q.q}`;
+            const illusContainer = document.getElementById('illustration-container');
+            illusContainer.innerHTML = q.svg ? q.svg : '';
+
+            const optsContainer = document.getElementById('options-container');
+            optsContainer.innerHTML = '';
+
+            if (q.type === 'mcq') {
+                const list = document.createElement('div');
+                list.className = 'options-list';
+                q.opts.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.innerHTML = `<span>${opt}</span><span style="opacity:0.6; font-size:0.85rem;">[${['أ','ب','ج','د'][idx]}]</span>`;
+                    btn.onclick = () => checkMCQ(idx, btn);
+                    list.appendChild(btn);
+                });
+                optsContainer.appendChild(list);
+            } else {
+                const grid = document.createElement('div');
+                grid.className = 'tf-grid';
+                grid.innerHTML = `
+                    <button class="tf-btn true-btn" onclick="checkTF(true, this)">
+                        <span>✔</span>
+                        <span>صواب</span>
+                    </button>
+                    <button class="tf-btn false-btn" onclick="checkTF(false, this)">
+                        <span>✖</span>
+                        <span>خطأ</span>
+                    </button>
+                `;
+                optsContainer.appendChild(grid);
+            }
+        }
+
+        function checkMCQ(chosenIdx, btn) {
+            if (answersLocked) return;
+            answersLocked = true;
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+
+            if (chosenIdx === q.ans) {
+                btn.classList.add('correct');
+                score++;
+                playTone(550, 'sine', 0.18);
+            } else {
+                btn.classList.add('wrong');
+                allBtns[q.ans].classList.add('correct');
+                playTone(200, 'triangle', 0.28);
+            }
+
+            document.getElementById('score-badge').innerText = `النقاط: ${score}`;
+            setTimeout(nextQuestion, 1000);
+        }
+
+        function checkTF(chosenVal, btn) {
+            if (answersLocked) return;
+            answersLocked = true;
+            const q = questions[currentQuestion];
+
+            if (chosenVal === q.ans) {
+                btn.style.boxShadow = "0 0 15px #10b981";
+                score++;
+                playTone(550, 'sine', 0.18);
+            } else {
+                btn.style.boxShadow = "0 0 15px #ef4444";
+                playTone(200, 'triangle', 0.28);
+            }
+
+            document.getElementById('score-badge').innerText = `النقاط: ${score}`;
+            setTimeout(nextQuestion, 1000);
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                renderQuestion();
+            } else {
+                finishGame();
+            }
+        }
+
+        async function finishGame() {
+            showScreen('result-screen');
+            document.getElementById('final-stats').innerText = `الفارس: ${playerName} | درجاتك: ${score} من ${questions.length}`;
+            await syncToGlobalSheets(playerName, score);
+        }
+
+        // إرسال النتيجة إلى Google Sheets عبر SheetDB المشترك
+        async function syncToGlobalSheets(name, pts) {
+            const status = document.getElementById('sync-status');
+            status.innerText = "⏳ جاري إرسال النتيجة للسحابة وجلب الترتيب العام...";
+
+            try {
+                await fetch(SHEETDB_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        data: [{
+                            name: name,
+                            score: pts,
+                            time: new Date().toLocaleString('ar-SA')
+                        }]
+                    })
+                });
+            } catch(e) {
+                console.error("فشل الإرسال:", e);
+            }
+
+            let allParticipants = [];
+            try {
+                const res = await fetch(SHEETDB_API_URL);
+                if (res.ok) {
+                    allParticipants = await res.json();
+                }
+            } catch(e) {
+                console.error("فشل الجلب:", e);
+            }
+
+            // ترتيب المراكز بالأعلى درجة
+            if (Array.isArray(allParticipants)) {
+                allParticipants.sort((a, b) => Number(b.score) - Number(a.score));
+            } else {
+                allParticipants = [{ name: name, score: pts }];
+            }
+
+            status.innerText = "✅ تم تحديث لوحة الشرف المشتركة بنجاح!";
+            renderLeaderboard(allParticipants);
+        }
+
+        function renderLeaderboard(list) {
+            const tbody = document.getElementById('leaderboard-body');
+            tbody.innerHTML = '';
+            list.slice(0, 30).forEach((entry, idx) => {
+                const tr = document.createElement('tr');
+                const medal = idx === 0 ? '🥇 الأول' : idx === 1 ? '🥈 الثاني' : idx === 2 ? '🥉 الثالث' : `${idx + 1}`;
+                if (entry.name === playerName && Number(entry.score) === score) {
+                    tr.style.backgroundColor = '#fef3c7';
+                    tr.style.color = '#92400e';
+                    tr.style.fontWeight = '900';
+                }
+                tr.innerHTML = `
+                    <td>${medal}</td>
+                    <td>${entry.name}</td>
+                    <td>${entry.score} / 44</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function resetGame() {
+            document.getElementById('player-name').value = '';
+            showScreen('start-screen');
+        }
+    </script>
+</body>
+</html>
