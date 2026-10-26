@@ -7,12 +7,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --heritage-primary: #8b3a1b;     /* لون الطين والقصور النجدية */
-            --heritage-secondary: #c27d38;   /* لون رمال الصحراء الذهبي */
-            --heritage-dark: #3e1f13;        /* بني داكن */
-            --heritage-light: #fef7ee;       /* بيج فاتح دافئ */
-            --accent-gold: #d97706;          /* ذهبي لامع */
-            --accent-green: #15803d;         /* أخضر التوحيد */
+            --heritage-primary: #8b3a1b;
+            --heritage-secondary: #c27d38;
+            --heritage-dark: #3e1f13;
+            --heritage-light: #fef7ee;
+            --accent-gold: #d97706;
+            --accent-green: #15803d;
             --danger: #b91c1c;
             --card-bg: #ffffff;
             --text-main: #271e1b;
@@ -51,7 +51,6 @@
             border: 2px solid #ecd5bf;
         }
 
-        /* شريط علوي تراثي */
         .game-card::before {
             content: "";
             position: absolute;
@@ -155,7 +154,6 @@
             border-radius: 14px;
             font-size: 1.1rem;
             outline: none;
-            transition: border-color 0.2s;
         }
 
         input[type="text"]:focus {
@@ -265,7 +263,6 @@
             flex-direction: column;
             align-items: center;
             gap: 8px;
-            transition: transform 0.15s;
         }
 
         .tf-btn.true-btn {
@@ -308,12 +305,6 @@
             background: #fbf5ee;
         }
 
-        .leaderboard-table tr:first-child td {
-            color: #92400e;
-            background: #fef3c7;
-            font-size: 1.05rem;
-        }
-
         .status-sync {
             font-size: 0.95rem;
             color: var(--heritage-primary);
@@ -326,7 +317,6 @@
 <body>
 
     <div class="game-card">
-        <!-- شاشة البداية -->
         <div id="start-screen" class="screen active">
             <div style="text-align:center; font-size: 3.2rem; margin-bottom: 8px;">🏰</div>
             <h1>تحدي أبطال الدولة السعودية الثانية</h1>
@@ -340,7 +330,6 @@
             <button class="btn" onclick="startGame()">بدء المغامرة التاريخية ⚔️</button>
         </div>
 
-        <!-- شاشة الأسئلة -->
         <div id="quiz-screen" class="screen">
             <div class="header-bar">
                 <div class="badge" id="stage-badge">المرحلة: 1 / 44</div>
@@ -356,14 +345,13 @@
             <div id="options-container"></div>
         </div>
 
-        <!-- شاشة النهاية ولوحة الشرف المشتركة -->
         <div id="result-screen" class="screen">
             <div style="text-align:center; font-size: 3.2rem; margin-bottom: 6px;">🏅</div>
             <h1>كفو يا بطل! أنهيت التحدي</h1>
             <p class="subtitle" id="final-stats"></p>
 
             <h3 style="color: var(--heritage-primary); margin-bottom: 6px; text-align: center;">لوحة شرف فرسان التاريخ 🌟</h3>
-            <div id="sync-status" class="status-sync">جاري إرسال النتيجة وجلب قائمة الأبطال المشتركة...</div>
+            <div id="sync-status" class="status-sync">جاري إرسال النتيجة وجلب الترتيب التاريخي الخاص...</div>
             <table class="leaderboard-table">
                 <thead>
                     <tr>
@@ -380,10 +368,9 @@
     </div>
 
     <script>
-        // رابط الـ API المشترك الخاص بك
         const SHEETDB_API_URL = "https://sheetdb.io/api/v1/0sbiifzmzotk6";
+        const CURRENT_GAME_KEY = "history"; // وسم خاص بمسابقة التاريخ فقط
 
-        // مؤثرات صوتية
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playTone(freq, type, duration) {
             try {
@@ -399,16 +386,13 @@
             } catch(e){}
         }
 
-        // الرسومات التاريخية بـ SVG
         const fortSVG = `
             <div class="illustration">
                 <svg viewBox="0 0 240 120">
                     <rect x="0" y="0" width="240" height="120" fill="#fdf6ed"/>
-                    <!-- أسوار القلعة وشرفاتها النجدية المثلثة -->
                     <rect x="30" y="45" width="180" height="70" fill="#c27d38" stroke="#8b3a1b" stroke-width="2"/>
                     <rect x="20" y="30" width="40" height="85" fill="#a85d26" stroke="#8b3a1b" stroke-width="2"/>
                     <rect x="180" y="30" width="40" height="85" fill="#a85d26" stroke="#8b3a1b" stroke-width="2"/>
-                    <!-- مثلثات الشرفات الطينية النجدية -->
                     <polygon points="25,30 30,20 35,30" fill="#fdf6ed"/>
                     <polygon points="45,30 50,20 55,30" fill="#fdf6ed"/>
                     <polygon points="185,30 190,20 195,30" fill="#fdf6ed"/>
@@ -416,7 +400,6 @@
                     <polygon points="75,45 80,35 85,45" fill="#fdf6ed"/>
                     <polygon points="115,45 120,35 125,45" fill="#fdf6ed"/>
                     <polygon points="155,45 160,35 165,45" fill="#fdf6ed"/>
-                    <!-- بوابة القلعة -->
                     <path d="M105,115 A15,20 0 0,1 135,115 Z" fill="#3e1f13"/>
                     <text x="120" y="24" font-size="11" font-weight="bold" fill="#8b3a1b" text-anchor="middle">قلعة أثرية (بلدة الحلوة)</text>
                 </svg>
@@ -427,9 +410,7 @@
             <div class="illustration">
                 <svg viewBox="0 0 240 110">
                     <rect x="0" y="0" width="240" height="110" fill="#fdf6ed"/>
-                    <!-- نصل السيف الأجرب -->
                     <path d="M30 65 Q110 50 195 55 Q210 57 215 62 Q195 72 30 65 Z" fill="#cbd5e1" stroke="#475569" stroke-width="2"/>
-                    <!-- مقبض السيف المذهب -->
                     <rect x="18" y="58" width="16" height="14" rx="3" fill="#d97706" stroke="#78350f" stroke-width="1.5"/>
                     <circle cx="15" cy="65" r="5" fill="#b45309"/>
                     <line x1="34" y1="50" x2="34" y2="80" stroke="#b45309" stroke-width="4"/>
@@ -442,9 +423,7 @@
             <div class="illustration">
                 <svg viewBox="0 0 240 130">
                     <rect x="0" y="0" width="240" height="130" fill="#e0f2fe"/>
-                    <!-- اليابسة وشبه الجزيرة -->
                     <path d="M25,15 L190,15 L225,50 L200,95 L170,120 L75,120 L35,80 Z" fill="#fde68a" stroke="#d97706" stroke-width="1.5"/>
-                    <!-- رقعة الدولة السعودية الثانية الخضراء -->
                     <path d="M55,30 Q120,20 160,35 Q185,55 160,95 Q110,110 70,85 Z" fill="#15803d" opacity="0.85"/>
                     <text x="108" y="60" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">إقليم نجد</text>
                     <text x="145" y="45" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">الأحساء</text>
@@ -454,9 +433,7 @@
             </div>
         `;
 
-        // بنك الأسئلة الـ 44 المستخرج كاملاً من ملف الدولة السعودية الثانية
         const questions = [
-            // أسئلة الاختيار من متعدد (22 سؤالاً)
             { type: 'mcq', q: "في أي عام هجري توفي الإمام فيصل بن تركي بعد أن استمر في حكم الدولة السعودية الثانية؟", opts: ["عام ١٢٨٢هـ", "عام ١٢٥٣هـ", "عام ١٢٥٠هـ", "عام ١٣٠٧هـ"], ans: 0 },
             { type: 'mcq', q: "وقعت في بلدة الحلوة سنة ١٢٥٣هـ معركة بين السعوديين والقوات العثمانية المعتدية. بأي اسم يسميها الأهالي؟", opts: ["معركة المليداء", "معركة الروم", "معركة حوطة بني تميم", "معركة الدرعية"], ans: 1, svg: fortSVG },
             { type: 'mcq', q: "من هو أمير حائل الذي استغل الفوضى والنزاعات الداخلية للاستيلاء على الحكم؟", opts: ["إسماعيل آغا", "خورشيد باشا", "محمد بن رشيد", "سعود بن فيصل"], ans: 2 },
@@ -479,8 +456,6 @@
             { type: 'mcq', q: "من هو آخر أئمة الدولة السعودية الثانية؟", opts: ["الإمام تركي بن عبد الله", "الإمام فيصل بن تركي", "الإمام عبد الرحمن بن فيصل", "الإمام عبد الله بن فيصل"], ans: 2 },
             { type: 'mcq', q: "سُميت معركة الحلوة بـ (معركة الروم) لكثرة:", opts: ["القتلى في صفوف القوات العثمانية المعتدية", "الخيول المشاركة في القتال", "الأسلحة التي استولى عليها السعوديون", "المدافع المستخدمة"], ans: 0, svg: fortSVG },
             { type: 'mcq', q: "محافظة في منطقة الرياض تتبعها بلدة الحلوة التي وقعت فيها المعركة الكبرى:", opts: ["حوطة بني تميم", "الخرج", "الدرعية", "الدوادمي"], ans: 0 },
-
-            // أسئلة الصواب والخطأ (22 سؤالاً)
             { type: 'tf', q: "الإمام عبد الرحمن بن فيصل بن تركي هو أول أئمة الدولة السعودية الثانية.", ans: false },
             { type: 'tf', q: "بنى الإمام تركي بن عبد الله جامعه الكبير في مدينة الدرعية بعد أن اتخذها عاصمة.", ans: false },
             { type: 'tf', q: "وقعت معركة الحلوة سنة ١٢٥٣هـ في عهد الإمام تركي بن عبد الله.", ans: false, svg: fortSVG },
@@ -627,12 +602,12 @@
             await syncToGlobalSheets(playerName, score);
         }
 
-        // إرسال النتيجة إلى Google Sheets عبر SheetDB المشترك
         async function syncToGlobalSheets(name, pts) {
             const status = document.getElementById('sync-status');
-            status.innerText = "⏳ جاري إرسال النتيجة للسحابة وجلب الترتيب العام...";
+            status.innerText = "⏳ جاري إرسال النتيجة إلى السجل وتحديث ترتيب فرسان التاريخ...";
 
             try {
+                // إرسال وسم game: 'history' لتمييز المسابقة
                 await fetch(SHEETDB_API_URL, {
                     method: 'POST',
                     headers: {
@@ -643,6 +618,7 @@
                         data: [{
                             name: name,
                             score: pts,
+                            game: CURRENT_GAME_KEY,
                             time: new Date().toLocaleString('ar-SA')
                         }]
                     })
@@ -651,25 +627,24 @@
                 console.error("فشل الإرسال:", e);
             }
 
-            let allParticipants = [];
+            // قراءة وتصفية المشاركين في مسابقة التاريخ فقط
+            let historyParticipants = [];
             try {
                 const res = await fetch(SHEETDB_API_URL);
                 if (res.ok) {
-                    allParticipants = await res.json();
+                    const allData = await res.json();
+                    if (Array.isArray(allData)) {
+                        historyParticipants = allData.filter(item => item.game === CURRENT_GAME_KEY);
+                    }
                 }
             } catch(e) {
                 console.error("فشل الجلب:", e);
             }
 
-            // ترتيب المراكز بالأعلى درجة
-            if (Array.isArray(allParticipants)) {
-                allParticipants.sort((a, b) => Number(b.score) - Number(a.score));
-            } else {
-                allParticipants = [{ name: name, score: pts }];
-            }
+            historyParticipants.sort((a, b) => Number(b.score) - Number(a.score));
 
-            status.innerText = "✅ تم تحديث لوحة الشرف المشتركة بنجاح!";
-            renderLeaderboard(allParticipants);
+            status.innerText = "✅ تم تحديث لوحة فرسان التاريخ بنجاح!";
+            renderLeaderboard(historyParticipants);
         }
 
         function renderLeaderboard(list) {
