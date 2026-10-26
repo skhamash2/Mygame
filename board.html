@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة الشرف وترتيب المراكز</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --accent: #d97706;
+            --gold: #f59e0b;
+            --silver: #94a3b8;
+            --bronze: #b45309;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+            min-height: 100vh;
+            padding: 24px 16px;
+            color: var(--text-dark);
+        }
+
+        .container {
+            max-width: 820px;
+            margin: 0 auto;
+        }
+
+        /* رأس الصفحة */
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* كروت الإحصائيات السريعة */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 16px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        .stat-card .val {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        .stat-card .lbl {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        /* منصة التتويج للمراكز الثلاثة الأولى */
+        .podium {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 14px;
+            margin-bottom: 28px;
+            padding: 10px 0;
+        }
+
+        .podium-slot {
+            flex: 1;
+            max-width: 220px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            text-align: center;
+            padding: 18px 12px;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.08);
+            border: 2px solid transparent;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .podium-slot.first {
+            order: 2;
+            border-color: var(--gold);
+            background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%);
+            transform: translateY(-12px);
+        }
+
+        .podium-slot.second {
+            order: 1;
+            border-color: var(--silver);
+        }
+
+        .podium-slot.third {
+            order: 3;
+            border-color: var(--bronze);
+        }
+
+        .podium-crown {
+            font-size: 2.2rem;
+            margin-bottom: 4px;
+        }
+
+        .podium-name {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+
+        .podium-score {
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        .podium-badge {
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-top: 6px;
+        }
+
+        .first .podium-badge { background: #fef3c7; color: #92400e; }
+        .second .podium-badge { background: #f1f5f9; color: #475569; }
+        .third .podium-badge { background: #ffedd5; color: #9a3412; }
+
+        /* شريط التحكم والبحث */
+        .controls {
+            background: var(--card-bg);
+            padding: 14px 18px;
+            border-radius: 16px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border);
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary-light);
+        }
+
+        .btn-ctrl {
+            background: #eff6ff;
+            color: var(--primary);
+            border: 1px solid #bfdbfe;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-ctrl:hover {
+            background: #dbeafe;
+        }
+
+        /* جدول النتائج العام */
+        .table-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        thead {
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+        th {
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 700;
+            font-size: 1.02rem;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        tbody tr:hover {
+            background: #f1f5f9;
+        }
+
+        .rank-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 0.95rem;
+        }
+
+        .rank-1 { background: #fef3c7; color: #b45309; }
+        .rank-2 { background: #f1f5f9; color: #475569; }
+        .rank-3 { background: #ffedd5; color: #c2410c; }
+        .rank-other { background: #f3f4f6; color: #6b7280; }
+
+        .time-col {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .loading-box {
+            padding: 40px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        /* الطباعة */
+        @media print {
+            body { background: white; padding: 0; }
+            .controls, .btn-ctrl { display: none; }
+            .table-card { box-shadow: none; border: 1px solid #000; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- الرأس -->
+        <div class="header">
+            <h1>🏆 لوحة الشرف والمراكز</h1>
+            <p>سجل الترتيب المباشر لنتائج الطلاب والتحديات التعليمية</p>
+        </div>
+
+        <!-- إحصائيات سريعة -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="val" id="total-students">0</div>
+                <div class="lbl">إجمالي المشاركين</div>
+            </div>
+            <div class="stat-card">
+                <div class="val" id="top-score">0 / 44</div>
+                <div class="lbl">أعلى درجة مسجلة</div>
+            </div>
+            <div class="stat-card">
+                <div class="val" id="avg-score">0</div>
+                <div class="lbl">متوسط الدرجات</div>
+            </div>
+        </div>
+
+        <!-- منصة التتويج للثلاثة الأوائل -->
+        <div class="podium" id="podium-area" style="display: none;">
+            <!-- الثاني -->
+            <div class="podium-slot second" id="slot-2">
+                <div class="podium-crown">🥈</div>
+                <div class="podium-name" id="name-2">-</div>
+                <div class="podium-score" id="score-2">-</div>
+                <div class="podium-badge">المركز الثاني</div>
+            </div>
+            <!-- الأول -->
+            <div class="podium-slot first" id="slot-1">
+                <div class="podium-crown">👑</div>
+                <div class="podium-name" id="name-1">-</div>
+                <div class="podium-score" id="score-1">-</div>
+                <div class="podium-badge">بطل التحدي 🥇</div>
+            </div>
+            <!-- الثالث -->
+            <div class="podium-slot third" id="slot-3">
+                <div class="podium-crown">🥉</div>
+                <div class="podium-name" id="name-3">-</div>
+                <div class="podium-score" id="score-3">-</div>
+                <div class="podium-badge">المركز الثالث</div>
+            </div>
+        </div>
+
+        <!-- شريط التحكم -->
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="🔍 ابحث عن اسم طالب..." oninput="filterTable()">
+            </div>
+            <button class="btn-ctrl" onclick="loadData()">🔄 تحديث</button>
+            <button class="btn-ctrl" onclick="window.print()">🖨️ طباعة</button>
+        </div>
+
+        <!-- جدول الترتيب -->
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">المركز</th>
+                        <th style="width: 45%;">اسم الطالب</th>
+                        <th style="width: 20%;">الدرجة</th>
+                        <th style="width: 20%;">التوقيت</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <tr>
+                        <td colspan="4" class="loading-box">⏳ جاري جلب أحدث النتائج من السحابة...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://sheetdb.io/api/v1/0sbiifzmzotk6";
+        let allScores = [];
+
+        async function loadData() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = `<tr><td colspan="4" class="loading-box">⏳ جاري تحديث البيانات...</td></tr>`;
+
+            try {
+                const res = await fetch(API_URL);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data)) {
+                        // ترتيب تنازلي حسب الدرجة
+                        allScores = data.sort((a, b) => Number(b.score) - Number(a.score));
+                        renderStats(allScores);
+                        renderPodium(allScores);
+                        renderTable(allScores);
+                    } else {
+                        tbody.innerHTML = `<tr><td colspan="4" style="padding:20px;">لا توجد مشاركات حتى الآن.</td></tr>`;
+                    }
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="4" style="color:red; padding:20px;">تعذر الاتصال بقاعدة البيانات. تأكد من اتصال الإنترنت وحاول مجدداً.</td></tr>`;
+            }
+        }
+
+        function renderStats(list) {
+            document.getElementById('total-students').innerText = list.length;
+            if (list.length > 0) {
+                document.getElementById('top-score').innerText = `${list[0].score} / 44`;
+                const sum = list.reduce((acc, curr) => acc + Number(curr.score || 0), 0);
+                document.getElementById('avg-score').innerText = (sum / list.length).toFixed(1);
+            }
+        }
+
+        function renderPodium(list) {
+            const podium = document.getElementById('podium-area');
+            if (list.length >= 3) {
+                podium.style.display = 'flex';
+                document.getElementById('name-1').innerText = list[0].name;
+                document.getElementById('score-1').innerText = `${list[0].score} / 44`;
+
+                document.getElementById('name-2').innerText = list[1].name;
+                document.getElementById('score-2').innerText = `${list[1].score} / 44`;
+
+                document.getElementById('name-3').innerText = list[2].name;
+                document.getElementById('score-3').innerText = `${list[2].score} / 44`;
+            } else {
+                podium.style.display = 'none';
+            }
+        }
+
+        function renderTable(list) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="padding:20px;">لم يتم العثور على أي نتائج مطابقة.</td></tr>`;
+                return;
+            }
+
+            list.forEach((item, index) => {
+                const rank = index + 1;
+                let rankClass = "rank-other";
+                let rankDisplay = rank;
+
+                if (rank === 1) { rankClass = "rank-1"; rankDisplay = "🥇 1"; }
+                else if (rank === 2) { rankClass = "rank-2"; rankDisplay = "🥈 2"; }
+                else if (rank === 3) { rankClass = "rank-3"; rankDisplay = "🥉 3"; }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="rank-badge ${rankClass}">${rankDisplay}</span></td>
+                    <td style="text-align: right; font-weight:800;">${item.name}</td>
+                    <td style="color: var(--primary); font-weight:900;">${item.score} / 44</td>
+                    <td class="time-col">${item.time || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterTable() {
+            const q = document.getElementById('search-input').value.toLowerCase().trim();
+            const filtered = allScores.filter(s => s.name && s.name.toLowerCase().includes(q));
+            renderTable(filtered);
+        }
+
+        // تشغيل التحميل فور فتح الصفحة
+        loadData();
+    </script>
+</body>
+</html>
